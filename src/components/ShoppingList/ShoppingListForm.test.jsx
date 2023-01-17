@@ -38,4 +38,17 @@ describe('ShoppingListForm', () => {
       assert.fail();
     }
   });
+
+  it('text field is working', () => {
+    render(
+      <ShoppingListForm
+        id="new"
+        mode="create"
+      />
+    );
+
+    const textarea = screen.getByTestId('shopping-list-form-name-new');
+    fireEvent.change(textarea, { target: { value: 'cats are alright' } });
+    expect(textarea.value).toBe('cats are alright');  
+  });
 });
