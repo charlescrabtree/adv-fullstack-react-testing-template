@@ -2,17 +2,21 @@ import {
   fireEvent,
   render,
   screen,
-  TestingLibraryElementError,
+//   TestingLibraryElementError,
 } from '@testing-library/react';
 import ShoppingListForm from './ShoppingListForm';
 
 describe('ShoppingListForm', () => {
 
-  it('renders a submit button', () => {
+  it('renders a form', () => {
     render(
       <ShoppingListForm
-        id={`shopping-list-form-${id}`}
+        id="test"
       />
     );
+
+    const form = screen.getByTestId('shopping-list-form-test');
+    
+    expect(form).toBeInTheDocument();
   });
 });
