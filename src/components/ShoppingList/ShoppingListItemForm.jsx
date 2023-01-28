@@ -1,71 +1,76 @@
 import { useState } from 'react';
+import ShoppingListItem from './ShoppingListItem';
 
-const defaultShoppingItem = {
-  id: null,
-  item_name: '',
-  quantity: 0,
-  done: false,
-};
+const ShoppingListItemForm = ({ onSubmit }) => {
+  const [shoppingItems, setShoppingItems] = useState([]);
+  const [newItem, setNewItem] = useState({
+    item_name: '',
+    quantity: 1,
+  });
+  const [editingId, setEditingId] = useState(null);
 
-export default function ShoppingListItemForm({
-  id,
-  shoppingItem,
-  onSubmit,
-}) {
-  const [newShoppingItem, setNewShoppingItem] = useState(
-    shoppingItem || defaultShoppingItem
-  );
+  const handleUpdateShoppingItem = (updatedShoppingItem) => {
+    setShoppingItems((prevShoppingItems) =>
+      prevShoppingItems.map((shoppingItem) =>
+        shoppingItem.id === updatedShoppingItem.id
+          ? updatedShoppingItem
+          : shoppingItem
+      )
+    );
+    setEditingId(null);
+  };
+
+  const handleChange = (e) => {
+    setNewItem({
+      ...newItem,
+      [e.target.name]: e.target.value,
+    });
+  };
+
+  const handleEdit = (id) => {
+    setEditingId(id);
+  };
+
   return (
-    <form
-      data-testid={`new-shopping-item-${id}`}
-      onSubmit={(e) => {
-        e.preventDefault();
-        onSubmit(newShoppingItem);
-        setNewShoppingItem(defaultShoppingItem);
-      }}
-    >
-      <label>
-        Item name:
+    <div>
+      <form
+        data-testid="form"
+        onSubmit={(e) => {
+          e.preventDefault();
+          onSubmit(newItem);
+        }}
+      >
         <input
-          data-testid={`new-shopping-item-name-${id}`}
           type="text"
-          name="name"
-          value={newShoppingItem.item_name}
-          onChange={(e) =>
-            setNewShoppingItem({
-              ...newShoppingItem,
-              item_name: e.target.value,
-            })
-          }
+          name="item_name"
+          data-testid="item-input"
+          onChange={handleChange}
+          placeholder="Add a new item"
         />
-      </label>
-      <br />
-      <label>
-        Quantity:
         <input
-          data-testid={`new-shopping-item-quantity-${id}`}
           type="number"
           name="quantity"
-          value={newShoppingItem.quantity}
-          onChange={(e) =>
-            setNewShoppingItem({
-              ...newShoppingItem,
-              quantity: e.target.value,
-            })
-          }
+          data-testid="quantity-input"
+          onChange={handleChange}
+          placeholder="Add a quantity"
         />
-      </label>
-      <br />
-      <button
-        data-testid={`shopping-item-form-submit-button-${id}`}
-        onClick={(e) => {
-          e.preventDefault();
-          onSubmit(newShoppingItem);
-        }}
-        type="submit"
-      >
-        Add item
-      </button>
-    </form>
+        <button type="submit" data-testid="submit-button">
+          Add
+        </button>
+      </form>
+      <div>
+        {shoppingItems.map((shoppingItem) => (
+          <ShoppingListItem
+            key={shoppingItem.id}
+            shoppingItem={shoppingItem}
+            onUpdateShoppingItem={handleUpdateShoppingItem}
+            onEdit={() => handleEdit(shoppingItem.id)}
+            editing={editingId === shoppingItem.id}
+          />
+        ))}
+      </div>
+    </div>
   );
-}
+};
+
+export default ShoppingListItemForm;
