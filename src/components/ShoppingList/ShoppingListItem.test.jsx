@@ -1,41 +1,64 @@
-import { fireEvent, render, screen } from '@testing-library/react';
+/* eslint-disable max-len */
 
+import { render, fireEvent } from '@testing-library/react';
 import ShoppingListItem from './ShoppingListItem';
 
-describe('Shopping List Item', () => {
-  const shoppingItem = {
-    id: 1,
-    item_name: 'test item',
-    quantity: 1,
-  };
+describe('ShoppingListItem component', () => {
+  let updateShoppingItemMock;
+  let deleteShoppingItemMock;
+  let shoppingItem;
 
-  it('update button updates shopping item', () => {
-    const onUpdateShoppingItem = jest.fn();
-    render(
+  beforeEach(() => {
+    updateShoppingItemMock = jest.fn();
+    deleteShoppingItemMock = jest.fn();
+    shoppingItem = { id: 1 };
+  });
+
+  it('renders an input field with the correct value', () => {
+    const { getByDisplayValue } = render(
       <ShoppingListItem
+        onUpdateShoppingItem={updateShoppingItemMock}
+        onDeleteShoppingItem={deleteShoppingItemMock}
         shoppingItem={shoppingItem}
-        onUpdateShoppingItem={onUpdateShoppingItem}
       />
     );
-    const updateButton = screen.getByTestId('update-shopping-item-1');
-    fireEvent.click(updateButton);
-    expect(onUpdateShoppingItem).toHaveBeenCalledWith(
-      shoppingItem
+    expect(getByDisplayValue(shoppingItem.name)).toBeTruthy();
+  });
+
+  it('calls the onUpdateShoppingItem prop function when the input field is changed', () => {
+    const { getByDisplayValue } = render(
+      <ShoppingListItem
+        onUpdateShoppingItem={updateShoppingItemMock}
+        onDeleteShoppingItem={deleteShoppingItemMock}
+        shoppingItem={shoppingItem}
+      />
+    );
+
+    const input = getByDisplayValue(shoppingItem.name);
+    fireEvent.change(input, { target: { value: 'new name' } });
+    expect(updateShoppingItemMock).toHaveBeenCalledWith(
+      shoppingItem.id,
+      {
+        ...shoppingItem,
+        name: 'new name',
+      }
     );
   });
 
-  it('delete button deletes shopping item', () => {
-    const onDeleteShoppingItem = jest.fn();
-    render(
-      <ShoppingListItem
-        shoppingItem={shoppingItem}
-        onDeleteShoppingItem={onDeleteShoppingItem}
-      />
-    );
-    const deleteButton = screen.getByTestId('delete-shopping-item-1');
-    fireEvent.click(deleteButton);
-    expect(onDeleteShoppingItem).toHaveBeenCalledWith(
-      shoppingItem
-    );
-  });
+  it('calls the onDeleteShoppingItem prop function when the delete button is clicked',
+    () => {
+      const { getByText } = render(
+        <ShoppingListItem
+          onUpdateShoppingItem={updateShoppingItemMock}
+          onDeleteShoppingItem={deleteShoppingItemMock}
+          shoppingItem={shoppingItem}
+        />
+      );
+
+      const button = getByText('Delete');
+      fireEvent.click(button);
+      expect(deleteShoppingItemMock).toHaveBeenCalledWith(
+        shoppingItem.id
+      );
+    });
 });
