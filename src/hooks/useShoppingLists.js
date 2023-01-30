@@ -4,6 +4,7 @@ import { createShoppingList } from '../services/shopping-lists.js';
 import {
   createShoppingListItem,
   updateShoppingListItem,
+  deleteShoppingListItem
 } from '../services/shopping-list-items.js';
 
 export default function useShoppingLists() {
@@ -60,17 +61,17 @@ export default function useShoppingLists() {
   };
 
   const onDeleteShoppingItem = async (shoppingListItem) => {
-    await updateShoppingListItem(shoppingListItem);
+    await deleteShoppingListItem(shoppingListItem.id);
     const newLists = [...shoppingLists];
-    const listIndex = newLists.findIndex(list => {
+    const listIndex = newLists.findIndex((list) => {
       return list.id === shoppingListItem.shopping_list_id;
     });
     const newList = newLists[listIndex];
-    const itemIndex = newList.shoppingItems.findIndex(item => {
+    const itemIndex = newList.shoppingItems.findIndex((item) => {
       return item.id === shoppingListItem.id;
     });
     const newItems = [...newList.shoppingItems];
-    delete newItems[itemIndex];
+    newItems.splice(itemIndex, 1);
     newLists[listIndex] = {
       ...newList,
       shoppingItems: newItems,
