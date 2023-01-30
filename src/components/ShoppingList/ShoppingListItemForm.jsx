@@ -1,76 +1,72 @@
 import { useState } from 'react';
-import ShoppingListItem from './ShoppingListItem';
 
-const ShoppingListItemForm = ({ onSubmit }) => {
-  const [shoppingItems, setShoppingItems] = useState([]);
-  const [newItem, setNewItem] = useState({
-    item_name: '',
-    quantity: 1,
-  });
-  const [editingId, setEditingId] = useState(null);
-
-  const handleUpdateShoppingItem = (updatedShoppingItem) => {
-    setShoppingItems((prevShoppingItems) =>
-      prevShoppingItems.map((shoppingItem) =>
-        shoppingItem.id === updatedShoppingItem.id
-          ? updatedShoppingItem
-          : shoppingItem
-      )
-    );
-    setEditingId(null);
-  };
-
-  const handleChange = (e) => {
-    setNewItem({
-      ...newItem,
-      [e.target.name]: e.target.value,
-    });
-  };
-
-  const handleEdit = (id) => {
-    setEditingId(id);
-  };
-
-  return (
-    <div>
-      <form
-        data-testid="form"
-        onSubmit={(e) => {
-          e.preventDefault();
-          onSubmit(newItem);
-        }}
-      >
-        <input
-          type="text"
-          name="item_name"
-          data-testid="item-input"
-          onChange={handleChange}
-          placeholder="Add a new item"
-        />
-        <input
-          type="number"
-          name="quantity"
-          data-testid="quantity-input"
-          onChange={handleChange}
-          placeholder="Add a quantity"
-        />
-        <button type="submit" data-testid="submit-button">
-          Add
-        </button>
-      </form>
-      <div>
-        {shoppingItems.map((shoppingItem) => (
-          <ShoppingListItem
-            key={shoppingItem.id}
-            shoppingItem={shoppingItem}
-            onUpdateShoppingItem={handleUpdateShoppingItem}
-            onEdit={() => handleEdit(shoppingItem.id)}
-            editing={editingId === shoppingItem.id}
-          />
-        ))}
-      </div>
-    </div>
-  );
+const defaultShoppingItem = {
+  id: null,
+  item_name: '',
+  quantity: 0,
+  done: false,
 };
 
-export default ShoppingListItemForm;
+export default function ShoppingListItemForm({
+  id,
+  shoppingItem,
+  onSubmit,
+}) {
+  const [newShoppingItem, setNewShoppingItem] = useState(
+    shoppingItem || defaultShoppingItem
+  );
+
+  return (
+    <form
+      data-testid={`new-shopping-item-${id}`}
+      onSubmit={(e) => {
+        e.preventDefault();
+        onSubmit(newShoppingItem);
+        setNewShoppingItem(defaultShoppingItem);
+      }}
+    >
+      <label>
+        Item name:
+        <input
+          data-testid={`new-shopping-item-name-${id}`}
+          type="text"
+          name="name"
+          value={newShoppingItem.item_name}
+          onChange={(e) =>
+            setNewShoppingItem({
+              ...newShoppingItem,
+              item_name: e.target.value,
+            })
+          }
+        />
+      </label>
+      <br />
+      <label>
+        Quantity:
+        <input
+          data-testid={`new-shopping-item-quantity-${id}`}
+          type="number"
+          name="quantity"
+          value={newShoppingItem.quantity}
+          onChange={(e) =>
+            setNewShoppingItem({
+              ...newShoppingItem,
+              quantity: e.target.value,
+            })
+          }
+        />
+      </label>
+      <br />
+      <button
+        data-testid={`shopping-item-form-submit-button-${id}`}
+        onClick={(e) => {
+          e.preventDefault();
+          onSubmit(newShoppingItem);
+        }}
+        type="submit"
+      >
+        Add item
+      </button>
+    </form>
+  );
+}
